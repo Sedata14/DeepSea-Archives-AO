@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Species {
+  id           String   @id @default(uuid())
+  authorId     String   
+  name         String   @unique
+  description  String?  @db.Text
+  rarityScore  Float    @default(1.0) 
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  observations Observation[]
+}
+
+model Observation {
+  id          String   @id @default(uuid())
+  authorId    String   
+  description String   @db.Text
+  status      Status   @default(PENDING)
+  validatedBy String?  
+  validatedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  speciesId   String
+  species     Species  @relation(fields: [speciesId], references: [id])
+}
+
+enum Status {
+  PENDING
+  VALIDATED
+  REJECTED
+}
